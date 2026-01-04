@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Public Chat</title>
+
+<style>
+body{margin:0;font-family:system-ui;background:#f0f2f5}
+.app{max-width:420px;margin:auto;height:100vh;background:#fff;display:flex;flex-direction:column}
+header{background:#1877f2;color:#fff;padding:12px;font-weight:600;text-align:center}
+#chat{flex:1;padding:10px;overflow-y:auto}
+.bubble{max-width:75%;margin:6px 0;padding:8px 10px;border-radius:14px;background:#1877f2;color:#fff;margin-left:auto}
+footer{display:flex;gap:6px;padding:10px}
+footer input{flex:1;padding:10px;border-radius:20px;border:1px solid #ccc}
+footer button{border:none;background:#1877f2;color:#fff;border-radius:20px;padding:10px 14px;cursor:pointer}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+<header>Public Chat</header>
+<div id="chat"></div>
+
+<footer>
+  <input id="msg" placeholder="Type a message">
+  <button onclick="send()">Send</button>
+</footer>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDC7vCyevGhfo7qt5ZgCMfLv1k9NnzYJtc",
+    authDomain: "x-chet-d6a0f.firebaseapp.com",
+    databaseURL: "https://x-chet-d6a0f-default-rtdb.firebaseio.com",
+    projectId: "x-chet-d6a0f",
+    storageBucket: "x-chet-d6a0f.firebasestorage.app",
+    messagingSenderId: "1065265037460",
+    appId: "1:1065265037460:web:e54b73483a6a54274b7481"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const chatRef = ref(db, 'messages');
+
+  const chatDiv = document.getElementById("chat");
+  const msgInput = document.getElementById("msg");
+
+  // SEND MESSAGE
+  function send(){
+    if(!msgInput.value) return;
+    push(chatRef, {
+      text: msgInput.value,
+      time: Date.now()
+    });
+    msgInput.value="";
+  }
+
+  // LISTEN FOR MESSAGES
+  onChildAdded(chatRef, (snap)=>{
+    const m = snap.val();
+    const div = document.createElement("div");
+    div.className="bubble";
+    div.innerText = m.text;
+    chatDiv.appendChild(div);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  });
+
+  // Make send() global
+  window.send = send;
+</script>
+
+</body>
+</html>
